@@ -47,6 +47,7 @@ public:
     bool MouseOverBoton(Vector2 mouse); // Verifica si el mouse esta encima del boton
     bool BotonPressed(Vector2 mouse, int button);   // Verifica si el mouse presiono el boton
     bool BotonDown(Vector2 mouse, int button); // Verifica si el mouse mantiene presionado el boton
+    bool BotonReleased(Vector2 mouse, int button); // Verifica que el boton no este presionado
     bool BotonReleased(); // Verifica que el boton no este presionado
 
     // Metodos de Rectangulo

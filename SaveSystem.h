@@ -3,7 +3,8 @@
 #include "Boton.h"
 #include "Picross.h"
 
-void SavePicross(Boton (*newtile)[maxTiles]);
-void LoadPicross(Boton (*newtile)[maxTiles]);
+
+void SavePicross(Boton (*newtile)[maxTiles], char* nameFile);
+void LoadPicross(Boton (*newtile)[maxTiles], char* nameFile);
 
 #endif

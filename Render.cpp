@@ -1,6 +1,7 @@
 #include "Render.h"
 #include "Colors.h"
 #include "Boton.h"
+#include "SaveSystem.h"
 #include <cstdio>
 
 int windowCounter;
@@ -19,33 +20,48 @@ int textPaddingX = 0;
 int textPaddingY = 0;
 Color tileColor;
 
+bool showText;
 Boton (*tile)[maxTiles] = new Boton[maxTiles][maxTiles];
+Boton (*tileGame)[maxTiles] = new Boton[maxTiles][maxTiles];
 Boton* colorMenu = new Boton[maxColors];
+Window menuBoton[2];
+Window textSave;
+Rectangle textBox{screenWidth/2.0f - 100, 180, 225, 50 };
+int letterCount = 0;
 
-void PanelColor(){
-	
-   for(int i=0;i<maxColors;i++){
-      colorMenu[i].Draw();
-      if(colorMenu[i].BotonPressed(mouse,0)){
-         colorSelected = colorMenu[i].GetColor();
-         colorMenu[colorPos].lineThick = 2;
-         colorMenu[i].lineThick = 3;
-         colorPos = i;
+void Menu(){
+   ClearBackground(DARKBLUE);
+
+   for(int i = 0; i< 2;i++){
+      menuBoton[i].DrawBox();
+
+      if(menuBoton[i].button[0].MouseOverBoton(mouse)){
+         menuBoton[i].button[0].DrawOutline();
+         //printf("sobre el boton[%d]\n",i);
+         if(IsMouseButtonReleased(0)/*menuBoton[i].button[0].BotonPressed(mouse,0)*/){
+            //printf("soltado\n");
+            if(i == 0){
+               gameState = game;
+            }
+            else{
+               gameState = editor; 
+            }
+         }
       }
 
-      if(colorMenu[i].MouseOverBoton(mouse) || CompareColors(colorMenu[i].GetColor(),colorSelected)){
-     	   colorMenu[i].DrawOutline();
-      }
    }
-
 }
 
-void Editor(){
-   ClearBackground(DARKBLUE);
+void PicrossScene(){
 
    for(int i=0; i < maxTiles;i++){
       for(int j=0; j < maxTiles; j++){
-         tile[i][j].Draw();
+         if(gameState == editor){
+            tile[i][j].Draw();
+         }else{
+            tileGame[i][j].Draw();
+         }
+         
       }
    }
 
@@ -60,7 +76,6 @@ void Editor(){
          counterTileX[i][j] = 0;
          counterTileY[i][j] = 0;
       }
-      
    }
 
    // Dibuja la cantidad de tiles de forma horizontal
@@ -68,22 +83,32 @@ void Editor(){
    for(int i=0; i < maxTiles;i++){
       for(int j=0; j < maxTiles; j++){
 
-         if(tile[i][j].BotonReleased() || !tile[i][j].MouseOverBoton(mouse)){
+         //if(tile[i][j].BotonReleased() || !tile[i][j].MouseOverBoton(mouse)){
             //tile[i][j].SetColorOutline(Color{0,0,0,255});
             //tile[i][j].SetColor(colorSelected);
-         }
+         //}
          
-         if(tile[i][j].BotonPressed(mouse,0)){
+         //if(tile[i][j].BotonPressed(mouse,0)){
             //printf("color:[%d][%d][%d]\n", tile[i][j].GetColor().r, tile[i][j].GetColor().g, tile[i][j].GetColor().b);
-         }
+         //}
 
          if(tile[i][j].BotonDown(mouse,0) && tile[i][j].MouseOverBoton(mouse)){
             //tile[i][j].SetColorOutline(Color{0,255,0,255});
-            tile[i][j].SetColor(colorSelected);
+            if(gameState == editor){
+               tile[i][j].SetColor(colorSelected);
+            }else if(gameState == game){
+               if(!IsWhite(tile[i][j].GetColor())){
+                  tileGame[i][j].SetColor(tile[i][j].GetColor());
+               }
+            }
+            
 
             //printf("set white:[%d][%d]\n", j,i);
          }else if(tile[i][j].BotonDown(mouse,1) && tile[i][j].MouseOverBoton(mouse)){
-            tile[i][j].SetColor(WHITE);
+            if(gameState == editor){
+               tile[i][j].SetColor(WHITE);
+            }
+            
          }
 
          if(tile[i][j].MouseOverBoton(mouse)){
@@ -194,14 +219,117 @@ void Editor(){
    endPos.x   = tile[maxTiles-1][maxTiles-1].GetShape().x + tile[maxTiles-1][maxTiles-1].GetShape().width;
    endPos.y   = tile[maxTiles-1][maxTiles-1].GetShape().y + tile[maxTiles-1][maxTiles-1].GetShape().height;
    DrawLineEx(startPos,endPos,1,ORANGE);
+}
 
-   
+void Game(){
+   ClearBackground(DARKBLUE);
+   if (loadedPicross == false){
+      LoadPicross(tile,file);
+      // Inicializacion de los tiles
+      for (int i = 0; i < maxTiles; i++) {
+         for(int j=0; j < maxTiles; j++){
+            tileGame[i][j].SetBoton((j*32)+tileOffsetX,(i*32)+tileOffsetY, 32, 32);
+            tileGame[i][j].SetColor(WHITE);
+            //printf("%d\n",tile[i][j].id);
+            //windowCounter++;
+         }       
+      }
+      loadedPicross = true;
+   }
+
+   PicrossScene();
+
+}
+
+void PanelColor(){
+	
+   for(int i=0;i<maxColors;i++){
+      colorMenu[i].Draw();
+      if(colorMenu[i].BotonPressed(mouse,0)){
+         colorSelected = colorMenu[i].GetColor();
+         colorMenu[colorPos].lineThick = 2;
+         colorMenu[i].lineThick = 3;
+         colorPos = i;
+      }
+
+      if(colorMenu[i].MouseOverBoton(mouse) || CompareColors(colorMenu[i].GetColor(),colorSelected)){
+     	   colorMenu[i].DrawOutline();
+      }
+   }
+
+}
+
+
+void Editor(){
+   ClearBackground(DARKBLUE);
+
+   if(IsKeyDown(KEY_LEFT_CONTROL) && IsKeyPressed(KEY_S)){
+      //loadedFile = SetNameFile(file);
+      showText = true;
+      
+   }else if(IsKeyDown(KEY_LEFT_CONTROL) && IsKeyPressed(KEY_L)){
+      LoadPicross(tile,file);
+   }
+
+   PicrossScene();
+
+   if(showText){
+
+      if(!IsKeyPressed(KEY_ENTER)){
+         // Get char pressed (unicode character) on the queue
+         int key = GetCharPressed();
+
+               // Check if more characters have been pressed on the same frame
+         while (key > 0)
+         {
+            // NOTE: Only allow keys in range [32..125]
+            if ((key >= 32) && (key <= 125) && (letterCount < MAX_INPUT_CHARS-5))
+            {
+               printf("letter: %d\n", key);
+               file[letterCount] = (char)key;
+               file[letterCount+1] = '\0'; // Add null terminator at the end of the string.
+               letterCount++;
+            }
+      
+            key = GetCharPressed();  // Check next character in the queue
+         }
+
+         if (IsKeyPressed(KEY_BACKSPACE))
+         {
+            letterCount--;
+            if (letterCount < 0) letterCount = 0;
+            file[letterCount] = '\0';
+         }
+         textSave.label[0].text = file;
+
+         textSave.DrawBox();
+         textSave.label[0].DrawLabel();
+      }else{
+         strcat(file,".txt");
+         SavePicross(tile,file);
+         showText = false;
+      }
+      
+
+   }
+
    DrawText(TextFormat("ID: %d",botonId),10,390,20,BLACK);
    DrawText(TextFormat("y: %d, x: %d",tileY,tileX),10,410,20,BLACK);
    
 }
 
 void RenderInit(){
+   showText=false;
+   menuBoton[0].NewBox(200,100,160,64);
+   menuBoton[0].NewButton(0,0,160,64);
+   menuBoton[0].NewLabel("Game",Vector2{50,25});
+   menuBoton[1].NewBox(200,200,160,64);
+   menuBoton[1].NewButton(0,0,160,64);
+   menuBoton[1].NewLabel("Editor",Vector2{50,25});
+   textSave.NewBox(screenWidth/2.0f - 100, screenHeight/2 - 100, 225, 50);
+   textSave.colorBox = LIGHTGRAY;
+   textSave.NewLabel("",Vector2{10,10});
+   // Inicializacion de los tiles
    for (int i = 0; i < maxTiles; i++) {
         for(int j=0; j < maxTiles; j++){
             tile[i][j].SetBoton((j*32)+tileOffsetX,(i*32)+tileOffsetY, 32, 32);
@@ -226,6 +354,19 @@ void RenderInit(){
 }
 
 void RenderGame(){
-	Editor();
-	PanelColor();
+   switch(gameState){
+   case menu:
+      Menu();
+      break;
+   case game:
+      Game();
+      break;
+   case editor:
+      Editor();
+      PanelColor();
+      break;
+   }
+   
+   
+	
 }

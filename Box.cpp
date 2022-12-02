@@ -22,7 +22,7 @@ Window::~Window(){
 
 }
 
-void Window::newLabel(const char* newText, Vector2 labelPos){
+void Window::NewLabel(const char* newText, Vector2 labelPos){
 	labelSize++;
 
 	label.resize(labelSize);
@@ -31,11 +31,18 @@ void Window::newLabel(const char* newText, Vector2 labelPos){
 	label[labelSize-1].position = labelPos;
 }
 
-void Window::newButton(float newxPos, float newyPos, float width, float newHeight){
+// El X e Y del boton toma en cuenta la posicion del box 
+void Window::NewButton(float x, float y, float width, float newHeight){
 	buttonSize++;
 
 	button.resize(buttonSize);
-	button[buttonSize-1].SetBoton(newxPos + position.x, newyPos + position.y, width, newHeight);
+	button[buttonSize-1].SetBoton(x + position.x, y + position.y, width, newHeight);
+}
+
+void Window::NewBox(float x, float y, float width, float height){
+	position = {x,y};
+	size 	 = {width, height};
+	windowBox = {position.x, position.y, size.x, size.y};
 }
 
 void Window::Position(Vector2 newposition){

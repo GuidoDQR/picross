@@ -70,6 +70,13 @@ bool Boton::BotonDown(Vector2 mouse, int button){
     return false;
 }
 
+bool Boton::BotonReleased(Vector2 mouse, int button){
+    if(MouseOverBoton(mouse) && !IsMouseButtonDown(button) && !IsMouseButtonPressed(button)){
+        return true;
+    }
+    return false;
+}
+
 bool Boton::BotonReleased(){
     if(botonPress == false && botonPressDown == false){
         return true;

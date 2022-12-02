@@ -1,7 +1,7 @@
 #ifndef BOX_H
 #define BOX_H
 
-#include "raylib.h"
+#include <raylib.h>
 #include "Boton.h"
 #include <vector>
 #include <string.h>
@@ -36,10 +36,11 @@ public:
 	Window();
 	~Window();
 
+	void NewBox(float, float, float, float);
 	void Position(Vector2);
 	void sizeBox(Vector2 newsize);
-	void newLabel(const char*, Vector2);
-	void newButton(float, float, float, float);
+	void NewLabel(const char*, Vector2);
+	void NewButton(float, float, float, float);
 	void DrawBox();
 };
 #endif

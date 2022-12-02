@@ -1,13 +1,15 @@
 #include "Picross.h"
-//#include "Colors.h"
-#include "Boton.h"
 #include "Render.h"
-#include "SaveSystem.h"
 #include <cstdio>
 
 Vector2 mouse;
 Color colorSelected;
 int colorPos;
+GameState gameState = menu;
+bool loadedPicross  = false;
+bool loadedFile     = false;
+char file[MAX_INPUT_CHARS];
+
 //------------------------------------------------------------------------------------
 // Program main entry point
 //------------------------------------------------------------------------------------
@@ -21,7 +23,6 @@ int main(void)
     // TODO: Load resources / Initialize variables at this point
 
     SetTargetFPS(60);
-   
     //int windowCreated = 0;
     //Vector2 windowPos = {(float) GetScreenWidth()/2, (float) GetScreenHeight()/2};
     
@@ -35,11 +36,11 @@ int main(void)
     {
         mouse = GetMousePosition();
 
-        if(IsKeyDown(KEY_LEFT_CONTROL) && IsKeyPressed(KEY_S)){
-            SavePicross(tile);
-        }
-        if(IsKeyDown(KEY_LEFT_CONTROL) && IsKeyPressed(KEY_L)){
-            LoadPicross(tile);
+        if(gameState != menu && IsKeyDown(KEY_LEFT_CONTROL) && IsKeyPressed(KEY_A)){
+            gameState = menu;
+            loadedPicross = false;
+            showText = false;
+            letterCount = 0;
         }
 
         // Update

@@ -1,11 +1,11 @@
 #include "SaveSystem.h"
 #include <iostream>
 #include <fstream>
-#include <iomanip> 
+#include <iomanip>
 
-void SavePicross(Boton (*newtile)[maxTiles]){
+void SavePicross(Boton (*newtile)[maxTiles], char* nameFile){
 	std::ofstream file;
-	file.open("savefile.txt");
+	file.open(nameFile);
 	for(int i=0;i<maxTiles;i++){
 		for(int j=0;j<maxTiles;j++){
 			file << std::setw(3) << (int)newtile[i][j].GetColor().r << " ";
@@ -17,7 +17,7 @@ void SavePicross(Boton (*newtile)[maxTiles]){
     std::cout<< "Guardado\n";
 }
 
-void LoadPicross(Boton (*newtile)[maxTiles]){
+void LoadPicross(Boton (*newtile)[maxTiles], char* nameFile){
 	std::ifstream file;
 	file.open("savefile.txt");
 	Color newColor;
