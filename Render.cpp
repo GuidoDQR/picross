@@ -24,6 +24,7 @@ bool showText;
 Boton (*tile)[maxTiles] = new Boton[maxTiles][maxTiles];
 Boton (*tileGame)[maxTiles] = new Boton[maxTiles][maxTiles];
 Boton* colorMenu = new Boton[maxColors];
+bool  showTexture[maxTiles][maxTiles];
 Window menuBoton[2];
 Window textSave;
 Rectangle textBox{screenWidth/2.0f - 100, 180, 225, 50 };
@@ -42,8 +43,7 @@ void Menu(){
             //printf("soltado\n");
             if(i == 0){
                gameState = game;
-            }
-            else{
+            }else{
                gameState = editor; 
             }
          }
@@ -59,7 +59,13 @@ void PicrossScene(){
          if(gameState == editor){
             tile[i][j].Draw();
          }else{
-            tileGame[i][j].Draw();
+            if(showTexture[i][j] == true){
+               //printf("i:%d J: %d\n",i,j);
+               tileGame[i][j].drawTexture();
+            }else{
+               tileGame[i][j].Draw();
+            }
+           
          }
          
       }
@@ -100,13 +106,16 @@ void PicrossScene(){
                if(!IsWhite(tile[i][j].GetColor())){
                   tileGame[i][j].SetColor(tile[i][j].GetColor());
                }
+               if(showTexture[i][j] == true){ showTexture[i][j] = false; }
             }
             
 
             //printf("set white:[%d][%d]\n", j,i);
-         }else if(tile[i][j].BotonDown(mouse,1) && tile[i][j].MouseOverBoton(mouse)){
+         }else if(tile[i][j].BotonPressed(mouse,1) && tile[i][j].MouseOverBoton(mouse)){
             if(gameState == editor){
                tile[i][j].SetColor(WHITE);
+            }else if(gameState == game){
+               showTexture[i][j] = !showTexture[i][j];
             }
             
          }
@@ -230,6 +239,7 @@ void Game(){
          for(int j=0; j < maxTiles; j++){
             tileGame[i][j].SetBoton((j*32)+tileOffsetX,(i*32)+tileOffsetY, 32, 32);
             tileGame[i][j].SetColor(WHITE);
+            tileGame[i][j].setTexture("noTile.png");
             //printf("%d\n",tile[i][j].id);
             //windowCounter++;
          }       
@@ -334,6 +344,7 @@ void RenderInit(){
         for(int j=0; j < maxTiles; j++){
             tile[i][j].SetBoton((j*32)+tileOffsetX,(i*32)+tileOffsetY, 32, 32);
             tile[i][j].SetColor(WHITE);
+            showTexture[i][j] = false;
             //printf("%d\n",tile[i][j].id);
             //windowCounter++;
         }       

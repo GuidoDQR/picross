@@ -10,9 +10,7 @@ Boton::Boton(){
 }
 
 Boton::~Boton(){ 
-    if(texture.mipmaps != 0){
-         UnloadTexture(texture);
-    }
+    if(texture.mipmaps != 0){UnloadTexture(texture);}
 }
 
 void Boton::SetBoton(float X, float Y, float width, float height){
